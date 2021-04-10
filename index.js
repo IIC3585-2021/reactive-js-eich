@@ -30,24 +30,24 @@ $(document).ready(async function() {
     // output.textContent = e.key;
     players.forEach((player)=>{
       if (player.controls.includes(e.key)) {
-        if (player.controls[0] === e.key){
+        if (player.controls[0] === e.key){ // Apreto tecla Izquierda
           if (player.direction === 'up'){
             player.direction = 'left'
           } else if (player.direction === 'left') {
             player.direction = 'down'
           } else if (player.direction === 'down') {
             player.direction = 'right'
-          } else {
+          } else if (player.direction === 'right') {
             player.direction = 'up'
           }
-        } else {
+        } else {                         // Apreto tecla Derecha
           if (player.direction === 'up'){
             player.direction = 'right'
           } else if (player.direction === 'left') {
             player.direction = 'up'
           } else if (player.direction === 'down') {
             player.direction = 'left'
-          } else {
+          } else if (player.direction === 'right'){
             player.direction = 'down'
           }
         }
@@ -61,7 +61,7 @@ $(document).ready(async function() {
     source.subscribe({
     next(event) {
       if (player.direction == 'right') {
-        player.location[0] = player.location[0] + 20 > width ? width - 10 : player.location[0] + 10
+        player.location[0] = player.location[0] + 10 > width - 10 ? width - 10 : player.location[0] + 10
       } else if (player.direction == 'left'){
         player.location[0] = player.location[0] - 10 < 0 ? 0 : player.location[0] - 10
       }
