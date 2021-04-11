@@ -1,9 +1,12 @@
+// import { width, height } from './constants';
+
 const players = [{}]
 
 $(document).ready(async function() {
   // const output = document.querySelector('output');  
   var canvas = document.getElementById("myCanvas");
   var snakeboard_ctx = canvas.getContext("2d");
+  let pixels = [{x: 200, y: 300, power: false}, {x:300, y:400, power: false}];
   let players = [{location: [200, 300], color: 'red', controls:['ArrowLeft', 'ArrowRight'], direction:'up'}, 
                {location: [300, 400], color: 'blue', controls:['a', 'd'], direction:'up'}];
 
@@ -54,6 +57,20 @@ $(document).ready(async function() {
       }
     })  
   })
+  const {interval} = Rx.Observable
+  let superPowers = interval(5000);
+  let superPowers2 = superPowers.scan((acc, curr) => {acc + curr}, 0).filter(x => x % 2 !== 0);
+
+  superPowers2.subscribe((e) => {
+    let x_index = Math.floor(Math.random() * 100)
+    let y_index = Math.floor(Math.random() * 100)
+    while (pixels.some(obj => obj.x === x_index && obj.y === y_index && (obj.power === true || obj.power === false))) {
+      x_index = Math.floor(Math.random() * 100)
+      y_index = Math.floor(Math.random() * 100)
+    }
+    pixels.push({x: x_index, y: y_index, power: true})
+    drawSnakePart({color: "purple", x: x_index, y: y_index})
+  });
 
   players.forEach((player) => {
     const {timer} = Rx.Observable
@@ -70,6 +87,12 @@ $(document).ready(async function() {
       } else if(player.direction == 'up'){
         player.location[1] = player.location[1] - 10 < 0 ? 0 : player.location[1] - 10
       }
+        pixels.push({x: player.location[0], y: player.location[1], power: false})
+        if (pixels.some(obj => obj.x === player.location[0] && obj.y === player.location[1] && obj.power === true)) {
+          let left = player.controls[0]
+          player.controls[0] = player.controls[1]
+          player.controls[1] = left
+        }
         drawSnakePart({x: player.location[0], y:  player.location[1], color: player.color})
     },
     error(err) {
