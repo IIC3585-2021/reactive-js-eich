@@ -58,16 +58,17 @@ $(document).ready(async function() {
     })  
   })
   const {interval} = Rx.Observable
-  let superPowers = interval(5000);
+  let superPowers = interval(9000);
   let superPowers2 = superPowers.scan((acc, curr) => {acc + curr}, 0).filter(x => x % 2 !== 0);
 
   superPowers2.subscribe((e) => {
-    let x_index = Math.floor(Math.random() * 100)
-    let y_index = Math.floor(Math.random() * 100)
+    let x_index = Math.floor(Math.random()* (width/10 + 1)) * 10
+    let y_index = Math.floor(Math.random()* (height/10 + 1)) * 10
     while (pixels.some(obj => obj.x === x_index && obj.y === y_index && (obj.power === true || obj.power === false))) {
-      x_index = Math.floor(Math.random() * 100)
-      y_index = Math.floor(Math.random() * 100)
+      x_index = Math.floor(Math.random()* (width/10 + 1)) * 10
+      y_index = Math.floor(Math.random()* (height/10 + 1)) * 10
     }
+    console.log("VEAMOS", x_index, y_index)
     pixels.push({x: x_index, y: y_index, power: true})
     drawSnakePart({color: "purple", x: x_index, y: y_index})
   });
@@ -87,8 +88,8 @@ $(document).ready(async function() {
       } else if(player.direction == 'up'){
         player.location[1] = player.location[1] - 10 < 0 ? 0 : player.location[1] - 10
       }
-        pixels.push({x: player.location[0], y: player.location[1], power: false})
-        if (pixels.some(obj => obj.x === player.location[0] && obj.y === player.location[1] && obj.power === true)) {
+        pixels.push({x: player.location[0], y: player.location[1], power: false})        
+        if (pixels.some(obj => obj.x == player.location[0] && obj.y == player.location[1] && obj.power == true)) {
           let left = player.controls[0]
           player.controls[0] = player.controls[1]
           player.controls[1] = left
