@@ -9,10 +9,39 @@ $(document).ready(async function() {
   let pixels = [{x: 200, y: 300, power: false}, {x:300, y:400, power: false}];
   let players = [{location: [200, 300], color: 'red', controls:['ArrowLeft', 'ArrowRight'], direction:'up'}, 
                {location: [300, 400], color: 'blue', controls:['a', 'd'], direction:'up'}];
-
   const width = 900
   const height = 600
-  // That's how you define the value of a pixel //
+  drawMenu()
+  
+  // Menu
+  var menu = Rx.Observable.fromEvent(document, 'click');
+  menu.subscribe((click) => {
+    // Click in Start
+    if (click.x > 347 && click.x < 573 && click.y < 237 && click.y > 205){
+      alert("Start Game");
+
+    // Click in New Player
+    } else if (click.x > 347 && click.x < 573 && click.y < 309 && click.y > 278) {
+      alert("New player");
+    }
+  })
+
+  function drawMenu() {
+    snakeboard_ctx.font = "30px Arial";
+    snakeboard_ctx.fillText(`Total Players: ${players.length}`,30,30);
+    // Nuevo jugador ()
+    snakeboard_ctx.beginPath();
+    snakeboard_ctx.rect(width * 3/8, height * 3/8 - 30, width / 4, 30);
+    snakeboard_ctx.stroke();
+    snakeboard_ctx.font = "30px Arial";
+    snakeboard_ctx.fillText("Start",width * 3/8 ,height * 3/8);
+    // Empezar
+    snakeboard_ctx.beginPath();
+    snakeboard_ctx.rect(width * 3/8, height * 4/8 - 30, width / 4, 30);
+    snakeboard_ctx.stroke();
+    snakeboard_ctx.font = "30px Arial";
+    snakeboard_ctx.fillText("New Player", width * 3/8 ,height * 4/8);
+  }
  
   function drawSnakePart(snakePart) 
   {  
