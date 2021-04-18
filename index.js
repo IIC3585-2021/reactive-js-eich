@@ -1,18 +1,70 @@
 // import { width, height } from './constants';
 
-const players = [{}]
+const PLAYER_OPTIONS = [
+  {location: [200, 300], color: 'red', controls:['ArrowLeft', 'ArrowRight'], direction:'up'}, 
+  {location: [300, 400], color: 'blue', controls:['a', 'd'], direction:'up'},
+  {location: [400, 500], color: 'yellow', controls:['v', 'n'], direction:'up'},
+  {location: [500, 600], color: 'green', controls:['i', 'p'], direction:'up'}
+];
 
 $(document).ready(async function() {
   // const output = document.querySelector('output');  
   var canvas = document.getElementById("myCanvas");
   var snakeboard_ctx = canvas.getContext("2d");
   let pixels = [{x: 200, y: 300, power: false}, {x:300, y:400, power: false}];
-  let players = [{location: [200, 300], color: 'red', controls:['ArrowLeft', 'ArrowRight'], direction:'up'}, 
-               {location: [300, 400], color: 'blue', controls:['a', 'd'], direction:'up'}];
-
+  let players = [];
   const width = 900
   const height = 600
-  // That's how you define the value of a pixel //
+  const inMenu = true
+  drawMainMenu()
+  
+  // Start Button
+  var startbutton = Rx.Observable.fromEvent(document, 'click');
+  startbutton
+  .filter(click => (players.length != 0) && inMenu && click.x > 347 && click.x < 573 && click.y < 237 && click.y > 205)
+  .subscribe(() => {
+    snakeboard_ctx.clearRect(0,0,width,height);
+    startGame();
+    inMenu = false;
+  });
+
+  // New Player
+  var newplayerbutton = Rx.Observable.fromEvent(document, 'click');
+  newplayerbutton
+  .filter(click => inMenu && click.x > 347 && click.x < 573 && click.y < 309 && click.y > 278)
+  .subscribe(() => {
+    if(PLAYER_OPTIONS.length != 0){
+      players.push(PLAYER_OPTIONS.pop());
+    }
+    snakeboard_ctx.clearRect(0,0,width,height);
+    drawMainMenu();
+  });
+
+  function drawMainMenu() {
+    snakeboard_ctx.font = "30px Arial";
+    snakeboard_ctx.fillText(`Total Players: ${players.length} of ${players.length + PLAYER_OPTIONS.length}`,30,30);
+    // Players
+    for(var i = 0; i < players.length; i++){
+      snakeboard_ctx.fillStyle = players[i].color;  
+      snakeboard_ctx.fillRect(30, 50 * (2+i), 10, 10);  
+      snakeboard_ctx.fillStyle = 'black'
+      snakeboard_ctx.strokeRect(30, 50 * (2+i), 10, 10);
+      snakeboard_ctx.font = "20px Arial";
+      snakeboard_ctx.fillText( `${players[i].controls}`, 50, 10 + 50 * (2+i));
+    }
+    // Start
+    snakeboard_ctx.beginPath();
+    snakeboard_ctx.rect(width * 3/8, height * 4/8 - 30, width / 4, 30);
+    snakeboard_ctx.stroke();
+    snakeboard_ctx.font = "30px Arial";
+    snakeboard_ctx.fillText("New Player", width * 3/8 ,height * 4/8);
+    // New Player
+    snakeboard_ctx.beginPath();
+    snakeboard_ctx.rect(width * 3/8, height * 3/8 - 30, width / 4, 30);
+    snakeboard_ctx.stroke();
+    snakeboard_ctx.font = "30px Arial";
+    snakeboard_ctx.fillText("Start",width * 3/8 ,height * 3/8);
+  }
  
   function drawSnakePart(snakePart) 
   {  
@@ -57,52 +109,58 @@ $(document).ready(async function() {
       }
     })  
   })
-  const {interval} = Rx.Observable
-  let superPowers = interval(9000);
-  let superPowers2 = superPowers.scan((acc, curr) => {acc + curr}, 0).filter(x => x % 2 !== 0);
 
-  superPowers2.subscribe((e) => {
-    let x_index = Math.floor(Math.random()* (width/10 + 1)) * 10
-    let y_index = Math.floor(Math.random()* (height/10 + 1)) * 10
-    while (pixels.some(obj => obj.x === x_index && obj.y === y_index && (obj.power === true || obj.power === false))) {
-      x_index = Math.floor(Math.random()* (width/10 + 1)) * 10
-      y_index = Math.floor(Math.random()* (height/10 + 1)) * 10
-    }
-    console.log("VEAMOS", x_index, y_index)
-    pixels.push({x: x_index, y: y_index, power: true})
-    drawSnakePart({color: "purple", x: x_index, y: y_index})
-  });
+  function startGame() {
 
-  players.forEach((player) => {
-    const {timer} = Rx.Observable
-    const source = timer(1, 100)
-    source.subscribe({
-    next(event) {
-      if (player.direction == 'right') {
-        player.location[0] = player.location[0] + 10 > width - 10 ? width - 10 : player.location[0] + 10
-      } else if (player.direction == 'left'){
-        player.location[0] = player.location[0] - 10 < 0 ? 0 : player.location[0] - 10
+    // Powers
+    const {interval} = Rx.Observable
+    let superPowers = interval(9000);
+    let superPowers2 = superPowers.scan((acc, curr) => {acc + curr}, 0).filter(x => x % 2 !== 0);
+
+    superPowers2.subscribe((e) => {
+      let x_index = Math.floor(Math.random()* (width/10 + 1)) * 10
+      let y_index = Math.floor(Math.random()* (height/10 + 1)) * 10
+      while (pixels.some(obj => obj.x === x_index && obj.y === y_index && (obj.power === true || obj.power === false))) {
+        x_index = Math.floor(Math.random()* (width/10 + 1)) * 10
+        y_index = Math.floor(Math.random()* (height/10 + 1)) * 10
       }
-      else if (player.direction == 'down'){
-        player.location[1] = player.location[1] + 10 > height - 10 ? height- 10 : player.location[1] + 10
-      } else if(player.direction == 'up'){
-        player.location[1] = player.location[1] - 10 < 0 ? 0 : player.location[1] - 10
-      }
-        pixels.push({x: player.location[0], y: player.location[1], power: false})        
-        if (pixels.some(obj => obj.x == player.location[0] && obj.y == player.location[1] && obj.power == true)) {
-          let left = player.controls[0]
-          player.controls[0] = player.controls[1]
-          player.controls[1] = left
-        }
-        drawSnakePart({x: player.location[0], y:  player.location[1], color: player.color})
-    },
-    error(err) {
-      console.error('something wrong occurred: ' + err);
-    },
-    complete() {
-       console.log('done');
-    }
+      console.log("VEAMOS", x_index, y_index)
+      pixels.push({x: x_index, y: y_index, power: true})
+      drawSnakePart({color: "purple", x: x_index, y: y_index})
     });
-  })
+
+    // Snake Movement
+    players.forEach((player) => {
+      const {timer} = Rx.Observable
+      const source = timer(1, 100)
+      source.subscribe({
+      next(event) {
+        if (player.direction == 'right') {
+          player.location[0] = player.location[0] + 10 > width - 10 ? width - 10 : player.location[0] + 10
+        } else if (player.direction == 'left'){
+          player.location[0] = player.location[0] - 10 < 0 ? 0 : player.location[0] - 10
+        }
+        else if (player.direction == 'down'){
+          player.location[1] = player.location[1] + 10 > height - 10 ? height- 10 : player.location[1] + 10
+        } else if(player.direction == 'up'){
+          player.location[1] = player.location[1] - 10 < 0 ? 0 : player.location[1] - 10
+        }
+          pixels.push({x: player.location[0], y: player.location[1], power: false})        
+          if (pixels.some(obj => obj.x == player.location[0] && obj.y == player.location[1] && obj.power == true)) {
+            let left = player.controls[0]
+            player.controls[0] = player.controls[1]
+            player.controls[1] = left
+          }
+          drawSnakePart({x: player.location[0], y:  player.location[1], color: player.color})
+      },
+      error(err) {
+        console.error('something wrong occurred: ' + err);
+      },
+      complete() {
+         console.log('done');
+      }
+      });
+    })
+  }
 })
 
