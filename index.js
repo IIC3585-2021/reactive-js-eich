@@ -7,13 +7,13 @@ let PLAYER_OPTIONS = [
   {location: [500, 600], color: 'green', controls:['i', 'p'], direction:'up', name:"4"}
 ];
 
-let copy = PLAYER_OPTIONS.slice(0)
+const copy = JSON.parse(JSON.stringify(PLAYER_OPTIONS))
 
 $(document).ready(async function() {
   // const output = document.querySelector('output');  
   var canvas = document.getElementById("myCanvas");
   var snakeboard_ctx = canvas.getContext("2d");
-  let pixels = [{x: 200, y: 300, power: false}, {x:300, y:400, power: false}];
+  let pixels = [];
   let players = [];
   let deaths = 0
   const width = 900
@@ -38,8 +38,11 @@ $(document).ready(async function() {
   .subscribe(() => {
     if(PLAYER_OPTIONS.length != 0){
       players.push(PLAYER_OPTIONS.pop());
+      console.log(players)
     }
     snakeboard_ctx.clearRect(0,0,width,height);
+    pixels = [];
+
     drawMainMenu();
   });
 
@@ -156,10 +159,11 @@ $(document).ready(async function() {
             if (deaths >= players.length - 1) {
               players.forEach((player)=>player.unsub.unsubscribe())
               inMenu = true
-              pixels = [{x: 200, y: 300, power: false}, {x:300, y:400, power: false}];
+              pixels = [];
               players = []
-              PLAYER_OPTIONS = copy
+              PLAYER_OPTIONS =  JSON.parse(JSON.stringify(copy))
               snakeboard_ctx.fillStyle = 'black'
+              deaths = 0
               drawMainMenu()
               console.log(superUnsub.unsubscribe())
             }
