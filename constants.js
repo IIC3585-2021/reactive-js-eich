@@ -1,4 +1,4 @@
-const height = 600
-const width = 900
+const HEIGHT = 600
+const WIDTH = 900
 
-export {height, width};
+export {HEIGHT, WIDTH};

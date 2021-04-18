@@ -1,10 +1,10 @@
-// import { width, height } from './constants';
+ //import { WIDTH, HEIGHT } from './constants';
 
 const PLAYER_OPTIONS = [
-  {location: [200, 300], color: 'red', controls:['ArrowLeft', 'ArrowRight'], direction:'up'}, 
-  {location: [300, 400], color: 'blue', controls:['a', 'd'], direction:'up'},
-  {location: [400, 500], color: 'yellow', controls:['v', 'n'], direction:'up'},
-  {location: [500, 600], color: 'green', controls:['i', 'p'], direction:'up'}
+  {location: [200, 300], color: 'red', controls:['ArrowLeft', 'ArrowRight'], direction:'up', name:"1"}, 
+  {location: [300, 400], color: 'blue', controls:['a', 'd'], direction:'up', name:"2"},
+  {location: [400, 500], color: 'yellow', controls:['v', 'n'], direction:'up', name:"3"},
+  {location: [500, 600], color: 'green', controls:['i', 'p'], direction:'up', name:"4"}
 ];
 
 $(document).ready(async function() {
@@ -13,9 +13,10 @@ $(document).ready(async function() {
   var snakeboard_ctx = canvas.getContext("2d");
   let pixels = [{x: 200, y: 300, power: false}, {x:300, y:400, power: false}];
   let players = [];
+  let deaths = 0
   const width = 900
   const height = 600
-  const inMenu = true
+  let inMenu = true
   drawMainMenu()
   
   // Start Button
@@ -74,12 +75,7 @@ $(document).ready(async function() {
     snakeboard_ctx.strokeRect(snakePart.x, snakePart.y, 10, 10);
   }
   
-  /*Function that prints the parts*/
-  // That's how you update the canvas, so that your //
-  // modification are taken in consideration //
-  let key = ''
-  let key2 = ''
-
+  // Keys Events, Controls player movements, sets direction of snake
   var keyDowns = Rx.Observable.fromEvent(document, 'keydown');
   keyDowns.subscribe((e) => {
     // output.textContent = e.key;
@@ -117,14 +113,14 @@ $(document).ready(async function() {
     let superPowers = interval(9000);
     let superPowers2 = superPowers.scan((acc, curr) => {acc + curr}, 0).filter(x => x % 2 !== 0);
 
-    superPowers2.subscribe((e) => {
+    const superUnsub = superPowers2.subscribe((e) => {
+
       let x_index = Math.floor(Math.random()* (width/10 + 1)) * 10
       let y_index = Math.floor(Math.random()* (height/10 + 1)) * 10
       while (pixels.some(obj => obj.x === x_index && obj.y === y_index && (obj.power === true || obj.power === false))) {
         x_index = Math.floor(Math.random()* (width/10 + 1)) * 10
         y_index = Math.floor(Math.random()* (height/10 + 1)) * 10
       }
-      console.log("VEAMOS", x_index, y_index)
       pixels.push({x: x_index, y: y_index, power: true})
       drawSnakePart({color: "purple", x: x_index, y: y_index})
     });
@@ -133,7 +129,7 @@ $(document).ready(async function() {
     players.forEach((player) => {
       const {timer} = Rx.Observable
       const source = timer(1, 100)
-      source.subscribe({
+      const unsub = source.subscribe({
       next(event) {
         if (player.direction == 'right') {
           player.location[0] = player.location[0] + 10 > width - 10 ? width - 10 : player.location[0] + 10
@@ -145,21 +141,33 @@ $(document).ready(async function() {
         } else if(player.direction == 'up'){
           player.location[1] = player.location[1] - 10 < 0 ? 0 : player.location[1] - 10
         }
-          pixels.push({x: player.location[0], y: player.location[1], power: false})        
           if (pixels.some(obj => obj.x == player.location[0] && obj.y == player.location[1] && obj.power == true)) {
             let left = player.controls[0]
             player.controls[0] = player.controls[1]
             player.controls[1] = left
           }
-          drawSnakePart({x: player.location[0], y:  player.location[1], color: player.color})
+          if (!pixels.some(obj => obj.x == player.location[0] && obj.y == player.location[1] && obj.power == false)) {
+            drawSnakePart({x: player.location[0], y:  player.location[1], color: player.color})
+          } else {
+            player.unsub.unsubscribe()
+            deaths +=1 
+            if (deaths >= players.length - 1) {
+              players.forEach((player)=>player.unsub.unsubscribe())
+              inMenu = true
+              console.log(superUnsub.unsubscribe())
+            }
+          }
+          pixels.push({x: player.location[0], y: player.location[1], power: false})        
+
       },
       error(err) {
-        console.error('something wrong occurred: ' + err);
+        console.error('something wrong occurred2: ' + err);
       },
       complete() {
          console.log('done');
       }
       });
+      player["unsub"] = unsub
     })
   }
 })
