@@ -1,11 +1,13 @@
  //import { WIDTH, HEIGHT } from './constants';
 
-const PLAYER_OPTIONS = [
+let PLAYER_OPTIONS = [
   {location: [200, 300], color: 'red', controls:['ArrowLeft', 'ArrowRight'], direction:'up', name:"1"}, 
   {location: [300, 400], color: 'blue', controls:['a', 'd'], direction:'up', name:"2"},
   {location: [400, 500], color: 'yellow', controls:['v', 'n'], direction:'up', name:"3"},
   {location: [500, 600], color: 'green', controls:['i', 'p'], direction:'up', name:"4"}
 ];
+
+let copy = PLAYER_OPTIONS.slice(0)
 
 $(document).ready(async function() {
   // const output = document.querySelector('output');  
@@ -154,6 +156,11 @@ $(document).ready(async function() {
             if (deaths >= players.length - 1) {
               players.forEach((player)=>player.unsub.unsubscribe())
               inMenu = true
+              pixels = [{x: 200, y: 300, power: false}, {x:300, y:400, power: false}];
+              players = []
+              PLAYER_OPTIONS = copy
+              snakeboard_ctx.fillStyle = 'black'
+              drawMainMenu()
               console.log(superUnsub.unsubscribe())
             }
           }
