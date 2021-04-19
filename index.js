@@ -1,10 +1,10 @@
  //import { WIDTH, HEIGHT } from './constants';
 
 let PLAYER_OPTIONS = [
-  {location: [200, 300], color: 'red', controls:['ArrowLeft', 'ArrowRight'], direction:'up', name:"1"}, 
-  {location: [300, 400], color: 'blue', controls:['a', 'd'], direction:'up', name:"2"},
   {location: [400, 500], color: 'yellow', controls:['v', 'n'], direction:'up', name:"3"},
-  {location: [500, 600], color: 'green', controls:['i', 'p'], direction:'up', name:"4"}
+  {location: [500, 600], color: 'green', controls:['i', 'p'], direction:'up', name:"4"},
+  {location: [300, 400], color: 'blue', controls:['a', 'd'], direction:'up', name:"2"},
+  {location: [200, 300], color: 'red', controls:['ArrowLeft', 'ArrowRight'], direction:'up', name:"1"}
 ];
 
 const copy = JSON.parse(JSON.stringify(PLAYER_OPTIONS))
